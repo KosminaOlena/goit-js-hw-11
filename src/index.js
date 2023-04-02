@@ -1,0 +1,76 @@
+import fetchImages from './fetchGallery';
+import './sass/common.scss';
+import Notiflix from 'notiflix';
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
+
+const searchForm = document.querySelector('#search-form');
+const gallery = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-btn')
+let page = 1;
+let query = '';
+const perPage = 40;
+
+searchForm.addEventListener('submit', onSearchImages);
+
+function onSearchImages(e)
+{
+    e.preventDefault();
+    query = e.currentTarget.searchQuery.value.trim();
+    if (query === '') {
+        return;
+    }
+    fetchImages(query, page, perPage)
+        .then(({ data }) => {
+            if (data.totalHits === 0) {
+                console.log('not');
+            } else {
+                renderMarkup(data.hits); 
+                simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+
+                if (data.totalHits > perPage) {
+                    loadMoreBtn.classList.remove('is-hidden');
+                    loadMoreBtn.addEventListener('click', onLoadMore);
+        }
+        }
+        })
+    .catch(error => console.log(error))
+    .finally(() => {
+      searchForm.reset();
+    });
+    
+}
+function onLoadMore(e) {
+    page += 1;
+    console.log(query, page);
+}
+function renderMarkup(data) {
+    const markup = data.map(data => {
+        const { largeImageURL, webformatURL, tags, likes, views, comments, downloads } = data;
+        return `<div class="photo-card">
+    <a href="${largeImageURL}">
+    <img src="${webformatURL}" alt="${tags}" loading="lazy" />
+    </a>
+    <div class="info">
+        <p class="info-item">
+            <b>Likes</b>
+            ${likes}
+        </p>
+        <p class="info-item">
+            <b>Views</b>
+            ${views}
+        </p>
+        <p class="info-item">
+            <b>Comments</b>
+            ${comments}
+        </p>
+        <p class="info-item">
+            <b>Downloads</b>
+            ${downloads}
+        </p>
+    </div>
+</div>
+`
+    }).join('');
+    gallery.insertAdjacentHTML('beforeend', markup);
+}
