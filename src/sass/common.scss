@@ -59,12 +59,13 @@ img {
     background-color: #249b81;
     border: transparent;
     border-radius: 4px;
+    &:hover {
+            box-shadow: 0 2px 4px rgba(50, 50, 50, 0.5);
+            background-color: #1fb393;
+        }
 }
 
-.search-form button:hover {
-    box-shadow: 0 2px 4px rgba(50, 50, 50, 0.5);
-    background-color: #1fb393;
-}
+
 
 .gallery {
     margin-top: 70px;
@@ -117,9 +118,7 @@ align-items: center;
 b{
     color: #249b81;
 }
-.load-btn.is-hidden {
-    display: none;
-}
+
 
 .load-btn {
     display: block;
@@ -131,8 +130,11 @@ b{
         border: transparent;
         border-radius: 4px;
         margin: 25px auto 0 auto;
-}
-.load-btn:hover {
-    box-shadow: 0 2px 4px rgba(50, 50, 50, 0.5);
-    background-color: #1fb393;
+        &:hover {
+                box-shadow: 0 2px 4px rgba(50, 50, 50, 0.5);
+                background-color: #1fb393;
+            }
+        &.is-hidden {
+                display: none;
+            }
 }
