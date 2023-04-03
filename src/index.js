@@ -20,22 +20,29 @@ function onSearchImages(e)
     page = 1;
     query = e.currentTarget.searchQuery.value.trim(); 
     gallery.innerHTML = '';
+    if (!loadMoreBtn.classList.contains('is-hidden')) {
+        loadMoreBtn.classList.add('is-hidden');
+    }
 
     if (query === '') {
+        Notiflix.Notify.failure('Enter what we will be looking for.');
         return;
     }
     fetchImages(query, page, perPage)
         .then(({ data }) => {
             if (data.totalHits === 0) {
                 Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-            } else {
+            } else if (data.totalHits > perPage)
+            {
                 Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
                 renderMarkup(data.hits); 
                 simpleLightBox = new SimpleLightbox('.gallery a').refresh();
-                if (data.totalHits > perPage) {
-                    loadMoreBtn.classList.remove('is-hidden');
-        }
-        }
+                loadMoreBtn.classList.remove('is-hidden');
+            } else {
+                Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.")
+                 renderMarkup(data.hits); 
+                simpleLightBox = new SimpleLightbox('.gallery a').refresh();  
+            }
         })
     .catch(error => console.log(error))
     .finally(() => {
