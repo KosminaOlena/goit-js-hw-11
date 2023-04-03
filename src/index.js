@@ -1,7 +1,7 @@
 import fetchImages from './fetchGallery';
 import './sass/common.scss';
 import Notiflix from 'notiflix';
-import SimpleLightbox from "simplelightbox";
+import SimpleLightbox from 'simplelightbox';
 import "simplelightbox/dist/simple-lightbox.min.css";
 
 const searchForm = document.querySelector('#search-form');
@@ -20,17 +20,15 @@ function onSearchImages(e)
     page = 1;
     query = e.currentTarget.searchQuery.value.trim(); 
     gallery.innerHTML = '';
-    if (!loadMoreBtn.classList.contains('is-hidden')) {
-        loadMoreBtn.classList.add('is-hidden');
-    }
+    loadMoreBtn.classList.add('is-hidden');
 
     if (query === '') {
         Notiflix.Notify.failure('Enter what we will be looking for.');
         return;
-    }
-    fetchImages(query, page, perPage)
+    } else {
+        fetchImages(query, page, perPage)
         .then(({ data }) => {
-            if (data.totalHits === 0) {
+            if (Number(data.totalHits) === 0) {
                 Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
             } else if (data.totalHits > perPage)
             {
@@ -48,6 +46,8 @@ function onSearchImages(e)
     .finally(() => {
       searchForm.reset();
     });
+    }
+    
     
 }
 function onLoadMore(e) {
@@ -56,7 +56,7 @@ function onLoadMore(e) {
     page += 1;
     fetchImages(query, page, perPage)
         .then(({ data }) => {
-            const currentTotal = data.totalHits - (page - 1) * perPage;
+            const currentTotal = Number(data.totalHits) - (page - 1) * perPage;
             if (currentTotal <= perPage) {
                 Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.")
             } else {
