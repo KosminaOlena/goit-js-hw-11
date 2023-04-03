@@ -7,30 +7,33 @@ import "simplelightbox/dist/simple-lightbox.min.css";
 const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-btn')
-let page = 1;
+let page;
 let query = '';
 const perPage = 40;
 
 searchForm.addEventListener('submit', onSearchImages);
+loadMoreBtn.addEventListener('click', onLoadMore);
 
 function onSearchImages(e)
 {
     e.preventDefault();
-    query = e.currentTarget.searchQuery.value.trim();
+    page = 1;
+    query = e.currentTarget.searchQuery.value.trim(); 
+    gallery.innerHTML = '';
+
     if (query === '') {
         return;
     }
     fetchImages(query, page, perPage)
         .then(({ data }) => {
             if (data.totalHits === 0) {
-                console.log('not');
+                Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
             } else {
+                Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
                 renderMarkup(data.hits); 
                 simpleLightBox = new SimpleLightbox('.gallery a').refresh();
-
                 if (data.totalHits > perPage) {
                     loadMoreBtn.classList.remove('is-hidden');
-                    loadMoreBtn.addEventListener('click', onLoadMore);
         }
         }
         })
@@ -41,9 +44,24 @@ function onSearchImages(e)
     
 }
 function onLoadMore(e) {
+    loadMoreBtn.classList.add('is-hidden');
+    simpleLightBox.destroy();
     page += 1;
-    console.log(query, page);
+    fetchImages(query, page, perPage)
+        .then(({ data }) => {
+            const currentTotal = data.totalHits - (page - 1) * perPage;
+            if (currentTotal <= perPage) {
+                Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.")
+            } else {
+                Notiflix.Notify.success(`Hooray! We found ${currentTotal} images.`);
+                loadMoreBtn.classList.remove('is-hidden');
+            } 
+                renderMarkup(data.hits);
+                simpleLightBox = new SimpleLightbox('.gallery a').refresh();       
+        })
+        .catch(error => console.log(error));
 }
+
 function renderMarkup(data) {
     const markup = data.map(data => {
         const { largeImageURL, webformatURL, tags, likes, views, comments, downloads } = data;
@@ -74,3 +92,5 @@ function renderMarkup(data) {
     }).join('');
     gallery.insertAdjacentHTML('beforeend', markup);
 }
+
+
