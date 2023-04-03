@@ -14,6 +14,8 @@ const perPage = 40;
 searchForm.addEventListener('submit', onSearchImages);
 loadMoreBtn.addEventListener('click', onLoadMore);
 
+let simpleLightBox;
+
 function onSearchImages(e)
 {
     e.preventDefault();
@@ -46,9 +48,7 @@ function onSearchImages(e)
     .finally(() => {
       searchForm.reset();
     });
-    }
-    
-    
+    } 
 }
 function onLoadMore(e) {
     loadMoreBtn.classList.add('is-hidden');
